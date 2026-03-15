@@ -1,63 +1,52 @@
-Week 2 Diagram
+# System Architecture 
+## Week 2 Diagram
 ```mermaid
 flowchart TD
 
-Client["Browser Client
-HTML / JS"]
+    Client["Browser Client"]
+    API["API Server"]
+    PG["PostgresSQL (Docker)"]
 
-API["REST API Server
-Node.js + TypeScript
-Express"]
-
-DB["PostgreSQL Database"]
-
-Client -->|HTTP / JSON| API
-API -->|SQL Queries| DB
+    Client -->|HTTP / JSON| API
+    API -->|SQL| PG
 ```
 
-Week 5 Diagram
+## Week 5 Diagram
 ```mermaid
 flowchart TD
 
-Client["Browser Client
-HTML / JavaScript"]
+Client["Browser Client HTML / JavaScript"]
 
-API["API Server
-TypeScript + Express"]
+API["API Server TypeScript + Express"]
 
-Auth["Authentication
-JWT / Login Service"]
+Auth["Authentication JWT / Login Service"]
 
-DB["PostgreSQL"]
+PG["PostgresSQL (Docker)"]
 
 Client -->|REST API| API
 
 API --> Auth
-API --> DB
+API --> PG
 ```
 
-Week 7 Diagram
+## Week 7 Diagram
 ```mermaid
 flowchart TD
 
-Client["Browser Client
-HTML / JavaScript"]
+Client["Browser Client HTML / JavaScript"]
 
-API["API Server
-TypeScript + Express"]
+API["API Server TypeScript + Express"]
 
-Auth["Authentication
-JWT / Login Service"]
+Auth["Authentication JWT / Login Service"]
 
-DB["PostgreSQL"]
+PG["PostgresSQL (Docker)"]
 
-Realtime["WebSocket Server
-(Real-time Updates)"]
+Realtime["WebSocket Server (Real-time Updates)"]
 
 Client -->|REST API| API
 Client -->|WebSockets| Realtime
 
 API --> Auth
-API --> DB
-Realtime --> DB
+API --> PG
+Realtime --> PG
 ```

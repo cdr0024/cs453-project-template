@@ -1,11 +1,18 @@
 ```mermaid
-flowchart LR
+flowchart TD
 
-Browser --> API
-API --> Database
+    Developer["Student Developer Machine"]
 
-subgraph Docker
-API
-Database
-end
+    subgraph Docker
+        PG["PostgresSQL Container"]
+    end
+
+    API["Node / TypeScript API"]
+    Client["Browser Client"]
+
+    Developer --> API
+    Developer --> Client
+    API --> PG
+    Client --> API
 ```
+
