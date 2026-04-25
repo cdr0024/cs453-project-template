@@ -30,6 +30,30 @@ app.get("/db-health", async (req, res) => {
     }
 });
 
+app.get("/tasks", async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT
+                id,
+                title,
+                description,
+                status,
+                created_at AS "createdAt",
+                updated_at AS "updatedAt"
+            FROM tasks
+            ORDER BY id ASC`
+        );
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Failed to fetch tasks:", error);
+        res.status(500).json({
+            status: "error",
+            message: "Failed to fetch tasks",
+        });
+    }
+});
+
 app.listen(env.port, () => {
     console.log(`Server running at http://localhost:${env.port}`);
 });
