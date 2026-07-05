@@ -59,11 +59,103 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Task"
+                $ref: "#/components/schemas/NewTask"
 
 
         "400":
           description: Missing title
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+  /tasks/{id}:
+    get:
+      summary: Get a task by id
+      description: Returns a task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Task id
+          schema:
+            type: integer
+       
+      responses: 
+        "200":
+          description: Task found
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Task"
+
+        "404":
+          description: Task not found
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    patch:
+      summary: Update a task
+      description: Updates field/s of a task
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Task id
+          schema: 
+            type: integer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTask"
+
+      responses:
+        "200": 
+          description: Task updates succesfully
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Task"
+
+
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Error"
+
+
+    delete: 
+      summary: Delete a task
+      description: Deletes a task
+
+      parameters:
+        - name: id 
+          in: path
+          required: true
+          description: Task id 
+          schema:
+            type: integer
+
+      responses:
+        "204":
+          description: Task deleted succesfully
+
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 
 
 
@@ -74,6 +166,10 @@ components:
     Task:
 
       type: object
+      required:
+        - id
+        - title
+        - status
 
       properties:
 
@@ -88,3 +184,39 @@ components:
         status:
           type: string
           example: todo
+
+    NewTask:
+      type: object
+      required:
+        - title
+
+      properties:
+        title: 
+          type: string
+          example: Create task API
+
+        status:
+          type: string 
+          example: todo
+
+    
+    UpdateTask:
+      type: object
+
+      properties:
+        title:
+          type: string
+          example: Update API documentation
+
+        status:
+          type: string
+          example: done 
+
+
+    Error:
+      type: object
+
+      properties:
+        error:
+          type: string
+          example: Task not found

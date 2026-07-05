@@ -1,7 +1,10 @@
 import { Router } from "express";
 import {
     getTasks,
-    createTask
+    createTask,
+    getTaskById,
+    updateTask,
+    deleteTask
 } from "../services/taskService";
 
 const router = Router ();
@@ -28,6 +31,46 @@ router.post("/", (req, res) => {
         status
     });
     res.status(201).json(task);
+});
+
+//GET /tasks/:id
+router.get("/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const task = getTaskById(id);
+    if (!task) {
+        return res.status(404).json({
+            error: "Task not found"
+        });
+    }
+    res.json(task);
+});
+
+//PATCH /tasks/:id
+
+router.patch("/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const task = updateTask(id, req.body);
+
+    if (!task) {
+        return res.status(404).json({
+            error: "Task not found"
+        });
+    }
+
+    res.json(task);
+});
+
+//DELETE /tasks/:id
+router.delete("/:id", (req, res) => {
+    const id = Number(req.params.id);
+    const deleted = deleteTask(id);
+
+    if (!deleted) {
+        return res.status(404).json({
+            error: "Task not found"
+        });
+    }
+    res.status(204).send();
 });
 
 export default router;
