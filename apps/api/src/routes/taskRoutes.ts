@@ -10,14 +10,20 @@ import {
 const router = Router ();
 
 //GET /tasks
-router.get("/", (_req, res) => {
-    const tasks = getTasks();
-
-    res.status(200).json(tasks);
+router.get("/", async (_req, res) => {
+    try {
+        const tasks = await getTasks();
+        res.status(200).json(tasks);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: "Failed to fetch tasks"
+        });
+    }
 });
 
 //POST /tasks
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
     const { title, status } = req.body;
 
     if (!title) {
@@ -26,51 +32,81 @@ router.post("/", (req, res) => {
         });
     }
 
-    const task = createTask({
-        title,
-        status
-    });
+    try{
+        const task = await createTask({
+            title,
+            status
+        });
     res.status(201).json(task);
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to create task"
+        });
+    }
 });
 
 //GET /tasks/:id
-router.get("/:id", (req, res) => {
-    const id = Number(req.params.id);
-    const task = getTaskById(id);
-    if (!task) {
-        return res.status(404).json({
-            error: "Task not found"
+router.get("/:id", async (req, res) => {
+    try{
+        const id = Number(req.params.id);
+        const task = await getTaskById(id);
+        if (!task) {
+            return res.status(404).json({
+                error: "Task not found"
+            });
+        }
+        res.json(task);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: "Failed to fetch task"
         });
     }
-    res.json(task);
 });
 
 //PATCH /tasks/:id
 
-router.patch("/:id", (req, res) => {
-    const id = Number(req.params.id);
-    const task = updateTask(id, req.body);
+router.patch("/:id", async (req, res) => {
+    try{
+        const id = Number(req.params.id);
+        const task = await updateTask(id, req.body);
 
-    if (!task) {
-        return res.status(404).json({
-            error: "Task not found"
+        if (!task) {
+            return res.status(404).json({
+                error: "Task not found"
+            });
+        }
+
+        res.json(task);
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to update task"
         });
     }
-
-    res.json(task);
 });
 
 //DELETE /tasks/:id
-router.delete("/:id", (req, res) => {
-    const id = Number(req.params.id);
-    const deleted = deleteTask(id);
+router.delete("/:id", async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        const deleted = await deleteTask(id);
 
-    if (!deleted) {
-        return res.status(404).json({
-            error: "Task not found"
+        if (!deleted) {
+            return res.status(404).json({
+                error: "Task not found"
+            });
+        }
+        res.status(204).send();
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            error: "failed to delete task"
         });
     }
-    res.status(204).send();
 });
 
 export default router;

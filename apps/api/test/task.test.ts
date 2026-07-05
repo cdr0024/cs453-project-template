@@ -1,14 +1,14 @@
 import { describe, expect, test, beforeEach } from "vitest";
 import request from "supertest";
 import {createApp} from "../src/server";
-import {resetTasks} from "../src/services/taskService";
-
+import {pool} from "../src/db/pool";
 
 describe("Task API", () => {
 
     //resets for tasks for tests
-    beforeEach(() => {
-        resetTasks();
+    beforeEach(async () => {
+        await pool.query("DELETE FROM tasks");
+        await pool.query("ALTER SEQUENCE tasks_id_seq RESTART WITH 1");
     });
 
     test("GET /tasks returns a list of tasks", async() => {

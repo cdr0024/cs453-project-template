@@ -1,70 +1,83 @@
+import { pool } from "../db/pool"
+
 interface Task {
     id: number;
     title: string,
     status: string;
 }
-
-const tasks: Task[] = [];
-let nextId = 1;
-
-export function resetTasks(): void {
-    tasks.length =0;
-    nextId = 1;
+ 
+export async function getTasks(): Promise<Task[]> {
+    const result = await pool.query(
+        `SELECT id, title, status
+        FROM tasks
+        ORDER BY id`
+    );
+    return result.rows;
 }
 
-export function getTasks(): Task[] {
-    return tasks;
-}
-
-export function createTask(data: {
+export async function createTask(data: {
     title: string;
     status?: string;
-}): Task {
-    const task: Task = {
-        id: nextId++,
-        title: data.title,
-        status: data.status ?? "todo"
-    };
+}): Promise<Task> {
+    const result = await pool.query(
+        `INSERT INTO tasks (title, status)
+        VALUES ($1, $2)
+        RETURNING id, title, status`,
+        [
+            data.title,
+            data.status ?? "todo"
+        ]
+    );
 
-    tasks.push(task);
-    return task;
+    return result.rows[0];
 }
 
-export function getTaskById(id: number) {
-    return tasks.find(task => task.id === id);
+export async function getTaskById(id: number): Promise<Task | undefined> {
+    const results = await pool.query(
+        `SELECT id, title, status
+        FROM tasks
+        WHERE id = $1`,
+        [id]
+    );
+
+    return results.rows[0];
 
 }
 
-export function updateTask(
+export async function updateTask(
     id: number,
     updates: {
         title?: string;
         status?: string;
     }
-) {
-    const task = tasks.find(task => task.id === id);
-    if (!task) {
+): Promise<Task | undefined> {
+    const existing = await getTaskById(id);
+    if (!existing) {
         return undefined;
     }
 
-    if (updates.title != undefined){
-        task.title = updates.title;
-
-    }
-    if (updates.status !== undefined) {
-        task.status = updates.status;
-    }
-
-    return task;
+    const result = await pool.query(
+        `UPDATE tasks
+        SET title = $1,
+            status = $2
+        WHERE id = $3
+        RETURNING id, title, status`,
+        [
+            updates.title ?? existing.title,
+            updates.status ?? existing.status,
+            id
+        ]
+    );
+    return result.rows[0];
 }
 
 
-export function deleteTask(id: number) {
-    const index = tasks.findIndex(task => task.id === id);
-    if (index === -1) {
-        return false;
-    }
+export async function deleteTask(id: number): Promise<boolean> {
+    const result = await pool.query(
+        `DELETE FROM tasks
+        WHERE id = $1`,
+        [id]
+    );
 
-    tasks.splice(index, 1);
-    return true;
+    return result.rowCount == 1;
 }
