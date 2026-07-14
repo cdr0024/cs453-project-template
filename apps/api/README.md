@@ -58,11 +58,42 @@ http://localhost:3000
 
 # Testing  
 
-Command to run test after starting server/database:  
+Command to run test file after starting server/database:  
 
 ```bash  
 npm test  
 ```  
+
+To run the test client file start the server, go to apps/client and run:  
+
+```bash  
+node client.ts  
+```  
+
+Response:  
+
+```bash  
+Checking health...
+{ status: 'ok', service: 'cs453-api' }
+
+Creating test task
+{ id: 4, title: 'Temporary API Client Test', status: 'todo' }
+
+Getting all tasks...
+[ { id: 4, title: 'Temporary API Client Test', status: 'todo' } ]
+
+Getting task by ID...
+{ id: 4, title: 'Temporary API Client Test', status: 'todo' }
+
+Updating task...
+{ id: 4, title: 'Temporary API Client Test', status: 'done' }
+
+Deleting test task...
+Before delete: 200
+Delete status: 204
+
+Client test complete  
+```
 
 ---  
 
