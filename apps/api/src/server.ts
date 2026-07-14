@@ -2,6 +2,7 @@ import express from "express";
 import { env } from "./config/env";
 import  taskRoutes from "./routes/taskRoutes"
 import { pool } from "./db/pool";
+import errorHandler from "./middleware/errorHandler";
 
 export function createApp(){
 
@@ -17,6 +18,14 @@ export function createApp(){
 	});
 
 	app.use("/tasks", taskRoutes);
+
+	app.use((_req, res) => {
+		res.status(404).json({
+			error: "Not found"
+		});
+	});
+
+	app.use(errorHandler);
 	return app;
 }
 if (process.env.NODE_ENV !== "test") {

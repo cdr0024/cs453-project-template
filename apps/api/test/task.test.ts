@@ -46,7 +46,21 @@ describe("Task API", () => {
 
         
         expect(response.body).toEqual({
-            error: "Title is required"
+            error: "title is required"
+        });
+    });
+
+    test("POST /tasks rejects title of incorrect type", async () => {
+        const app = createApp();
+        const response = await request(app)
+            .post("/tasks")
+            .send({
+                title: 123
+            })
+            .expect(400);
+
+        expect(response.body).toEqual({
+            error: "title must be a string"
         });
     });
 
@@ -72,6 +86,17 @@ describe("Task API", () => {
             .expect(404);
     });
 
+    test("GET /tasks/:id rejects invalid id", async() => {
+        const app = createApp();
+        const response = await request(app)
+            .get("/tasks/abc")
+            .expect(400);
+
+        expect(response.body).toEqual({
+            error: "Invalid task id"
+        });
+    });
+
     test("PATCH updates a task", async () => {
         const app = createApp();
         const created = await request(app)
@@ -91,6 +116,25 @@ describe("Task API", () => {
         expect(response.body.status).toBe("done");
     });
 
+    test("PATCH /tasks/:id rejects empty update", async () => {
+        const app = createApp();
+        const created = await request(app)
+            .post("/tasks")
+            .send({
+                title: "Homework",
+                status: "todo"
+            });
+
+        const response = await request(app)
+            .patch(`/tasks/${created.body.id}`)
+            .send({})
+            .expect(400);
+
+        expect(response.body).toEqual({
+            error: "Field required to update"
+        });
+    });
+
     test("DELETE removes  a task", async () => {
         const app = createApp();
 
@@ -103,6 +147,17 @@ describe("Task API", () => {
         await request(app)
             .delete(`/tasks/${created.body.id}`)
             .expect(204);
+    });
+
+    test("Unknown routes return 404", async () => {
+        const app = createApp();
+        const response = await request(app)
+            .get("/wrong-route")
+            .expect(404);
+
+        expect(response.body).toEqual({
+            error: "Not found"
+        });
     });
 
 });

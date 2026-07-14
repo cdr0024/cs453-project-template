@@ -2,6 +2,7 @@
 Description: An express API for managing tasks. It allows you to view, update, create and delete task using a PostgreSQL database  
 Development: This project was developed in VS code on Windows 11  
 
+This project covers Milestone 1, 2, and 3
 ---  
 
 # Install  

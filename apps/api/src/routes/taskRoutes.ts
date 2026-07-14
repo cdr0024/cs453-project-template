@@ -6,6 +6,7 @@ import {
     updateTask,
     deleteTask
 } from "../services/taskService";
+import validateTask from "../middleware/validateTask";
 
 const router = Router ();
 
@@ -23,14 +24,8 @@ router.get("/", async (_req, res) => {
 });
 
 //POST /tasks
-router.post("/", async (req, res) => {
+router.post("/", validateTask, async (req, res) => {
     const { title, status } = req.body;
-
-    if (!title) {
-        return res.status(400).json({
-            error: "Title is required"
-        });
-    }
 
     try{
         const task = await createTask({
@@ -48,7 +43,7 @@ router.post("/", async (req, res) => {
 });
 
 //GET /tasks/:id
-router.get("/:id", async (req, res) => {
+router.get("/:id", validateTask, async (req, res) => {
     try{
         const id = Number(req.params.id);
         const task = await getTaskById(id);
@@ -68,7 +63,7 @@ router.get("/:id", async (req, res) => {
 
 //PATCH /tasks/:id
 
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", validateTask, async (req, res) => {
     try{
         const id = Number(req.params.id);
         const task = await updateTask(id, req.body);
@@ -90,7 +85,7 @@ router.patch("/:id", async (req, res) => {
 });
 
 //DELETE /tasks/:id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", validateTask, async (req, res) => {
     try {
         const id = Number(req.params.id);
         const deleted = await deleteTask(id);
