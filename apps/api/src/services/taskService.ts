@@ -100,3 +100,23 @@ export async function deleteTask(id: number): Promise<boolean> {
 
     return result.rowCount === 1;
 }
+
+export async function getTaskOwner(
+    id: number
+): Promise<number | undefined> {
+    const result = await pool.query(
+        `SELECT projects.owner_id
+        FROM tasks
+        JOIN projects
+        ON tasks.project_id = projects.id
+        WHERE tasks.id = $1`,
+        [id]
+    );
+
+
+    if (result.rows.length === 0) {
+        return undefined;
+    }
+
+    return result.rows[0].owner_id;
+}

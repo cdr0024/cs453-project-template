@@ -4,10 +4,12 @@ import {
     createTask,
     getTaskById,
     updateTask,
-    deleteTask
+    deleteTask,
+    getTaskOwner
 } from "../services/taskService";
 import validateTask from "../middleware/validateTask";
 import authenticate from "../middleware/authenticate";
+import { getProjectOwner } from "../services/projectService";
 
 const router = Router ();
 
@@ -27,6 +29,22 @@ router.get("/", authenticate, async (_req, res) => {
 //POST /tasks
 router.post("/", authenticate, validateTask, async (req, res) => {
     const { title, description, status, project_id, assigned_to } = req.body;
+    const ownerId = await getProjectOwner(project_id);
+
+    if (ownerId === undefined) {
+        return res.status(404).json({
+            error: "Project not found"
+        });
+    }
+
+    if (
+        req.user!.role !== "admin" &&
+        ownerId !== req.user!.userId
+    ) {
+        return res.status(403).json({
+            error: "You do not have permission to add tasks to this project"
+        });
+    }
 
     try{
         const task = await createTask({
@@ -56,6 +74,17 @@ router.get("/:id", authenticate, async (req, res) => {
                 error: "Task not found"
             });
         }
+
+        const ownerId = await getTaskOwner(id);
+        if (
+            req.user!.role !== "admin" &&
+            ownerId !== req.user!.userId
+        ) {
+            return res.status(403).json({
+                error: "You do not have permission to view this task"
+            })
+        }
+
         res.json(task);
     } catch (error) {
         console.error(error);
@@ -70,6 +99,23 @@ router.get("/:id", authenticate, async (req, res) => {
 router.patch("/:id", authenticate, validateTask, async (req, res) => {
     try{
         const id = Number(req.params.id);
+
+        const ownerId = await getTaskOwner(id);
+        if (ownerId === undefined) {
+            return res.status(404).json({
+                error: "Task not found"
+            });
+        }
+
+        if (
+            req.user!.role !== "admin" &&
+            ownerId !== req.user!.userId
+        ) {
+            return res.status(403).json({
+                error: "Youd do not have permission to modify this task"
+            });
+        }
+
         const task = await updateTask(id, req.body);
 
         if (!task) {
@@ -92,6 +138,23 @@ router.patch("/:id", authenticate, validateTask, async (req, res) => {
 router.delete("/:id", authenticate, async (req, res) => {
     try {
         const id = Number(req.params.id);
+
+        const ownerId = await getTaskOwner(id);
+        if (ownerId === undefined) {
+            return res.status(404).json({
+                error: "task not found"
+            });
+        }
+
+        if (
+            req.user!.role !== "admin" &&
+            ownerId !== req.user!.userId
+        ) {
+            return res.status(403).json({
+                error: "Youd do not have permission to delete this task"
+            });
+        }
+
         const deleted = await deleteTask(id);
 
         if (!deleted) {
