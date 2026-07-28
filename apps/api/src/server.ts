@@ -1,6 +1,7 @@
 import express from "express";
 import { env } from "./config/env";
-import  taskRoutes from "./routes/taskRoutes"
+import  taskRoutes from "./routes/taskRoutes";
+import projectRoutes from "./routes/projectRoutes";
 import { pool } from "./db/pool";
 import errorHandler from "./middleware/errorHandler";
 
@@ -18,6 +19,7 @@ export function createApp(){
 	});
 
 	app.use("/tasks", taskRoutes);
+	app.use("/projects", projectRoutes);
 
 	app.use((_req, res) => {
 		res.status(404).json({

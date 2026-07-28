@@ -25,12 +25,15 @@ router.get("/", async (_req, res) => {
 
 //POST /tasks
 router.post("/", validateTask, async (req, res) => {
-    const { title, status } = req.body;
+    const { title, description, status, project_id, assigned_to } = req.body;
 
     try{
         const task = await createTask({
             title,
-            status
+            description,
+            status,
+            project_id,
+            assigned_to
         });
     res.status(201).json(task);
     } catch (error) {
@@ -43,7 +46,7 @@ router.post("/", validateTask, async (req, res) => {
 });
 
 //GET /tasks/:id
-router.get("/:id", validateTask, async (req, res) => {
+router.get("/:id", async (req, res) => {
     try{
         const id = Number(req.params.id);
         const task = await getTaskById(id);
@@ -85,7 +88,7 @@ router.patch("/:id", validateTask, async (req, res) => {
 });
 
 //DELETE /tasks/:id
-router.delete("/:id", validateTask, async (req, res) => {
+router.delete("/:id", async (req, res) => {
     try {
         const id = Number(req.params.id);
         const deleted = await deleteTask(id);
