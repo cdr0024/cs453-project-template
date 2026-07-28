@@ -7,11 +7,12 @@ import {
     deleteTask
 } from "../services/taskService";
 import validateTask from "../middleware/validateTask";
+import authenticate from "../middleware/authenticate";
 
 const router = Router ();
 
 //GET /tasks
-router.get("/", async (_req, res) => {
+router.get("/", authenticate, async (_req, res) => {
     try {
         const tasks = await getTasks();
         res.status(200).json(tasks);
@@ -24,7 +25,7 @@ router.get("/", async (_req, res) => {
 });
 
 //POST /tasks
-router.post("/", validateTask, async (req, res) => {
+router.post("/", authenticate, validateTask, async (req, res) => {
     const { title, description, status, project_id, assigned_to } = req.body;
 
     try{
@@ -46,7 +47,7 @@ router.post("/", validateTask, async (req, res) => {
 });
 
 //GET /tasks/:id
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticate, async (req, res) => {
     try{
         const id = Number(req.params.id);
         const task = await getTaskById(id);
@@ -66,7 +67,7 @@ router.get("/:id", async (req, res) => {
 
 //PATCH /tasks/:id
 
-router.patch("/:id", validateTask, async (req, res) => {
+router.patch("/:id", authenticate, validateTask, async (req, res) => {
     try{
         const id = Number(req.params.id);
         const task = await updateTask(id, req.body);
@@ -88,7 +89,7 @@ router.patch("/:id", validateTask, async (req, res) => {
 });
 
 //DELETE /tasks/:id
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticate, async (req, res) => {
     try {
         const id = Number(req.params.id);
         const deleted = await deleteTask(id);

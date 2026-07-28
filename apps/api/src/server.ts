@@ -4,6 +4,7 @@ import  taskRoutes from "./routes/taskRoutes";
 import projectRoutes from "./routes/projectRoutes";
 import { pool } from "./db/pool";
 import errorHandler from "./middleware/errorHandler";
+import authRoutes from "./routes/authRoutes";
 
 export function createApp(){
 
@@ -20,6 +21,7 @@ export function createApp(){
 
 	app.use("/tasks", taskRoutes);
 	app.use("/projects", projectRoutes);
+	app.use("/auth", authRoutes);
 
 	app.use((_req, res) => {
 		res.status(404).json({

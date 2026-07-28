@@ -4,11 +4,12 @@ import {
     createProject,
     getProjectById
 } from "../services/projectService";
+import authenticate from "../middleware/authenticate";
 
 const router = Router();
 
 // GET /projects
-router.get("/", async (_req, res) => {
+router.get("/", authenticate, async (_req, res) => {
     try {
         const projects = await getProjects();
         res.status(200).json(projects);
@@ -22,7 +23,7 @@ router.get("/", async (_req, res) => {
 
 //POST /projects
 
-router.post("/", async (req, res) => {
+router.post("/", authenticate, async (req, res) => {
     const { name, description, owner_id } = req.body;
 
     if (!name || !owner_id) {
@@ -47,7 +48,7 @@ router.post("/", async (req, res) => {
 });
 
 //GET /projects/:id
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticate, async (req, res) => {
     try {
         const id = Number(req.params.id);
         const project = await getProjectById(id);
