@@ -65,7 +65,7 @@ router.post("/", authenticate, validateTask, async (req, res) => {
 });
 
 //GET /tasks/:id
-router.get("/:id", authenticate, async (req, res) => {
+router.get("/:id", authenticate, validateTask, async (req, res) => {
     try{
         const id = Number(req.params.id);
         const task = await getTaskById(id);
