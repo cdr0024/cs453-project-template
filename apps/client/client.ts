@@ -43,6 +43,21 @@ async function runClient(): Promise<void> {
     data = await response.json();
     console.log(data);
 
+    console.log("\nTesting invalid login...");
+    response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: "client@test.com",
+            password: "wrongpassword"
+        })
+    });
+
+    data = await response.json()
+    console.log(data)
+
     console.log("\nLogging in...");
     response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
@@ -58,6 +73,12 @@ async function runClient(): Promise<void> {
     const login: LoginResponse = await response.json();
     console.log(login);
 
+    console.log("\nTesting protected route without token.. ");
+    response = await fetch(`${API_BASE_URL}/tasks`);
+    console.log(response.status);
+    data = await response.json();
+    console.log(data);
+
     token = login.token;
 
     console.log("\nGetting current user...");
@@ -67,6 +88,16 @@ async function runClient(): Promise<void> {
         }
     });
 
+    data = await response.json();
+    console.log(data);
+
+    console.log("\nTesting admin route for normal user...");
+    response = await fetch(`${API_BASE_URL}/users`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+    console.log(response.status);
     data = await response.json();
     console.log(data);
 
@@ -87,6 +118,29 @@ async function runClient(): Promise<void> {
     console.log(project);
 
     const projectId = project.id;
+
+    console.log("\nGetting project by ID...");
+    response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+    data = await response.json();
+    console.log(data);
+
+    console.log("\nUpdating project...");
+    response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            name: "Updated Client Project"
+        })
+    });
+    data = await response.json();
+    console.log(data);
 
     console.log("\nGetting all projects...");
     response = await fetch(`${API_BASE_URL}/projects`, {
@@ -166,6 +220,26 @@ async function runClient(): Promise<void> {
         }
     });
 
+    data = await response.json();
+    console.log(data);
+
+    console.log("\nDeleting project...");
+    response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    console.log("Delete status:", response.status)
+
+    console.log("\nGetting deleted project...");
+    response = await fetch(`${API_BASE_URL}/projects/${projectId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+    console.log(response.status);
     data = await response.json();
     console.log(data);
 
