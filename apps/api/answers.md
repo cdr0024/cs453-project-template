@@ -23,4 +23,36 @@
 
  The hardest part was setting up the database connection and tables. It took sometime getting use to the workflow of it all and making sure everything was correctly initialized so that I was able to test my code.  
 
- ---
+ ---  
+
+ ## Checkpoint 2 questions  
+
+### 1.) What is the difference between authentication and authorization?  
+
+Authentication verifies who the user is while authorization checks what a user is allowed to do based on their role.  
+
+### 2.) Why should passwords be hashed instead of stored directly?  
+
+Passwords should be hashed instead of stored directly in the database so that if it gets exposed, attackers cannot easily get the users' real passwords. It improves the security hashing them.  
+
+### 3.) What information did you include in your JWT, and why?  
+  
+The JWT includes details to identify the user including id and email, and then the role for authorization checks.  
+
+### 4.) What is the difference between a 401 response and a 403 response?  
+
+A 401 response indicates that there was no token providede or that it was invalid. A 403 response signals that a logged in user is trying to perform a action they are not authorized for.  
+
+### 5.) Where does your application perform role or ownership checks?  
+
+Authorization middleware checks for roles while ownership checks happen within routes to prevent users from editing other users resources.  
+
+### 6.) How are users, projects, and tasks related in your database?  
+
+Users own projects and tasks. Projects can contain multiple tasks. Projects and tasks have ids in their tables to tie them to the appropiate owners/connections.  
+
+### 7.) What was the hardest part of adding authentication or authorization?  
+
+I think the hardest part of adding authentication and authorization was connecting it all and keeping track of where to add it in or where it may be missing. I felt a lot of back and forth of feeling like I had covered what I needed to just to realize through testing I was still missing covering a route. So it was tough ensuring the routes and tests had all the needed tokens and that they handled permissions correctly.  
+
+---
