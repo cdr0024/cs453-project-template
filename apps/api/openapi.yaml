@@ -3,7 +3,7 @@ openapi: 3.0.3
 info:
   title: Task API
   version: 1.0.0
-  description: Basic task tracking API for CS453 project
+  description: Task tracking API with JWT authentication, authorization, users, projects, and tasks.
 
 
 servers:
@@ -26,11 +26,291 @@ paths:
                   status: 
                     type: string
                     example: ok
-                  
+  
+
+  /auth/register:
+    post:
+      summary: Register a new users
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUser"
+
+      responses:
+        
+        "201":
+          description: User registered 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+
+        "400":
+          description: Invalid request or email already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/login:
+    
+    post: 
+      summary: Login user and get JWT token
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginUser"
+
+      responses:
+
+        "200":
+          description: login successfull
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: jwt-token
+
+
+        "401":
+          description: invalid login credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+  /auth/me:
+
+    get:
+      summary: Get current user
+      security:
+        - BearerAuth: []
+
+      responses:
+
+        "200":
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/AuthUser"
+
+
+        "401":
+          description: missing authentication token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+  /users:
+
+    get:
+      summary: Get all users (admin only)
+      security:
+        - BearerAuth: []
+
+      responses:
+        
+        "200":
+          description: list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuthUser"
+
+
+        "401":
+          description: authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+        "403":
+          description: Admin access required
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/Error"
+
+
+  /projects:
+
+    get:
+      summary: get projects owned by current user
+      security:
+        - BearerAuth: []
+
+      responses:
+
+        "200":
+          description: list of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+
+    post:
+      summary: create a projects
+      security: 
+        - BearerAuth: []
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                
+                name: 
+                  type: string
+                  example: CS453 project
+                description:
+                  type: string
+                  example: semester project
+
+      responses:
+
+        "201":
+          description: Project created
+          content: 
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+        "400":
+          description: Missing project name
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+  /projects/{id}:
+
+    get:
+      summary: Get project by id
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+
+        "200":
+          description: Project found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+        "403":
+          description: User does not own project
+
+        "404":
+          description: Project not found
+
+    patch:
+      summary: Update project
+      security: 
+        - BearerAuth: []
+
+      parameters:
+        - name: id 
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+
+                name:
+                  type: string
+
+                description:
+                  type: string
+
+      responses:
+
+        "200":
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+
+        "403":
+          description: permision denied
+
+        "404":
+          description: Project not found
+
+
+    delete:
+      summary: delete project
+      security:
+        - BearerAuth: []
+
+      parameters:
+        - name: id 
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+
+        "204":
+          description: Project deleted
+
+        "403":
+          description: Permissiond denied
+
+        "404":
+          description: Project not found
+
+
+
   /tasks:
 
     get:
       summary: Get all tasks
+      security:
+        - BearerAuth: []
       responses:
 
         "200":
@@ -46,6 +326,8 @@ paths:
 
     post:
       summary: Create a task
+      security:
+        - BearerAuth: []
 
       requestBody:
         required: true
@@ -55,15 +337,25 @@ paths:
               type: object
               required:
                 - title
+                - project_id
               properties:
 
                 title:
                   type: string
                   example: Create task API
 
+                description:
+                  type: string
+
                 status:
                   type: string
                   example: todo
+
+                project_id:
+                  type: integer
+
+                assigned_to:
+                  type: integer
 
 
       responses:
@@ -88,6 +380,8 @@ paths:
   /tasks/{id}:
     get:
       summary: Get a task by id
+      security:
+        - BearerAuth: []
       description: Returns a task
       parameters:
         - name: id
@@ -121,6 +415,8 @@ paths:
 
     patch:
       summary: Update a task
+      security:
+        - BearerAuth: []
       description: Updates field/s of a task
 
       parameters:
@@ -164,6 +460,8 @@ paths:
 
     delete: 
       summary: Delete a task
+      security:
+        - BearerAuth: []
       description: Deletes a task
 
       parameters:
@@ -199,6 +497,99 @@ components:
 
   schemas:
 
+    RegisterUser:
+      type: object
+
+      required:
+        - name
+        - email
+        - password
+
+      properties:
+
+        name:
+          type: string
+          example: John Smith
+
+        email:
+          type: string
+          example: john@test.com
+
+        password:
+          type: string
+          example: password123
+
+    LoginUser:
+      type: object
+
+      required:
+        - email
+        - password
+
+      properties:
+
+        email:
+          type: string
+          example: john@test.com
+
+        password:
+          type: string
+          example: password123
+
+    User:
+      type: object
+      properties:
+        id: 
+          type: integer
+          example: 1
+
+        name:
+          type: string
+          example: John Smith
+
+        email:
+          type: string
+          example: john@test.com
+
+        role:
+          type: string
+          example: user
+
+    AuthUser:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 1
+
+        email:
+          type: string
+          example: john@test.com
+
+        role:
+          type: string
+          example: user
+
+    Project: 
+      type: object
+
+      properties:
+        id:
+          type: integer
+          example: 1
+
+        name:
+          type: string
+          example: CS453 Project
+
+        description:
+          type: string
+          example: Semester Project
+
+        owner_id:
+          type: integer
+          example: 1
+
     Task:
 
       type: object
@@ -206,6 +597,7 @@ components:
         - id
         - title
         - status
+        - project_id
 
       properties:
 
@@ -217,9 +609,22 @@ components:
           type: string
           example: Create task API
 
+        description:
+          type: string
+          nullable: true
+          example: milestone 1
+
         status:
           type: string
           example: todo
+
+        project_id:
+          type: integer
+          example: 1
+
+        assigned_to:
+          type: integer
+          nullable: true
     
     UpdateTask:
       type: object
@@ -229,9 +634,18 @@ components:
           type: string
           example: Update API documentation
 
+        description:
+          type: string
+
         status:
           type: string
           example: done 
+
+        project_id:
+          type: integer
+
+        assigned_to:
+          type: integer
 
 
     Error:

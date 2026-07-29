@@ -235,6 +235,29 @@ The login return a JWT. Then include the token in future requests:
 Authorization: Bearer <token>  
 ```
 ---  
+# Admin Account  
+
+Newly registered users by default are given the role `user`. To create an admin account, first register the user normally.  
+```bash
+curl.exe --% -X POST http://localhost:3000/auth/register -H "Content-Type: application/json" --data-raw "{\"name\":\"Admin User\",\"email\":\"admin@test.com\",\"password\":\"admin123\"}"  
+```  
+
+After the user is created, update the user's role directly in PostgreSQL:  
+```sql  
+UPDATE users
+SET role = 'admin'
+WHERE email = 'admin@test.com';  
+```  
+
+now when the user logs in they can recieve a JWT with the admin role.  
+
+
+---  
+# Authorization and Ownership rules  
+
+Admin-roles are the only ones who can view all users with `/users`. Users own exclusively their own projects and tasks. Other users cannot change each others projects or tasks.  
+
+---
 
 # Routes Table  
 
